@@ -80,7 +80,10 @@ def main():
     model = setup_model(args, device)
             
     print('2.1 setup loss function')
-    criterion = WeightedBCE()   
+    if args.task == 22:
+        criterion = WeightedMSE()
+    else:
+        criterion = WeightedBCE()   
     regularization = BinaryReg(alpha=10.0)
  
     print('3. setup optimizer')
