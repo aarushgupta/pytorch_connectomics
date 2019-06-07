@@ -66,7 +66,7 @@ def setup_model(args, device, exact=True, size_match=True):
                  'fpn': fpn}
 
     assert args.architecture in MODEL_MAP.keys()
-    if args.task == 2:
+    if args.task == 22:
         model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel, act='tanh')
     else:        
         model = MODEL_MAP[args.architecture](in_channel=1, out_channel=args.out_channel)
