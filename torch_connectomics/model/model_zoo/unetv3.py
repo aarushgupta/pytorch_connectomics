@@ -22,7 +22,7 @@ class unetv3(nn.Module):
         out_channel (int): number of output channels.
         filters (list): number of filters at each u-net stage.
     """
-    def __init__(self, in_channel=1, out_channel=3, filters=[8, 12, 16, 20, 24]):
+    def __init__(self, in_channel=1, out_channel=3, filters=[8, 12, 16, 20, 24], act='sigmoid'):
     #def __init__(self, in_channel=1, out_channel=3, filters=[28, 36, 48, 64, 80]):
         super().__init__()
 
@@ -91,6 +91,11 @@ class unetv3(nn.Module):
         self.conv3 = conv3d_bn_elu(filters[3], filters[2], kernel_size=(1,1,1), padding=(0,0,0)) 
         self.conv4 = conv3d_bn_elu(filters[4], filters[3], kernel_size=(1,1,1), padding=(0,0,0))
 
+        if act == 'tanh':
+            self.act = nn.Tanh()
+        else:
+            self.act = nn.Sigmoid()
+
         #initialization
         ortho_init(self)
 
@@ -124,8 +129,7 @@ class unetv3(nn.Module):
         x = self.up(self.conv1(x))
         x = x + z1
         x = self.layer1_D(x)
-
-        x = torch.sigmoid(x)
+        x = self.act(x)
         return x
 
 def test():

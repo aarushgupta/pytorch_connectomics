@@ -12,13 +12,18 @@ def train(args, train_loader, model, device, criterion,
     for iteration, batch in enumerate(train_loader):
 
         if args.task == 22:
+            # _, volume, seg_mask, class_weight, _, label, out_skeleton, out_valid = batch
             _, volume, seg_mask, class_weight, _, label, out_skeleton = batch
         else:
             _, volume, label, class_weight, _ = batch
         volume, label = volume.to(device), label.to(device)
 #        seg_mask = seg_mask.to(device)
         class_weight = class_weight.to(device)
+        # out_valid = out_valid.to(device)
         output = model(volume)
+
+        # if args.task == 22:
+        #     class_weight = class_weight * out_valid        
 
         if regularization is not None:
             loss = criterion(output, label, class_weight) + regularization(output)

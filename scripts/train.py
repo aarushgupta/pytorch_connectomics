@@ -6,6 +6,7 @@ import torch
 
 from torch_connectomics.utils.net import *
 from torch_connectomics.run.train import train
+from torch_connectomics.model.loss import WeightedMSE, WeightedBCE, BinaryReg
 
 def main():
     args = get_args(mode='train')

@@ -18,7 +18,7 @@ TASK_MAP = {0: 'neuron segmentation',
             22:'mitochondira segmentation with skeleton transform'}
  
 
-def get_input_data(args, pad_size):
+def get_input_data(args, pad_size, mode):
     dir_name = args.train.split('@')
     img_name = args.img_name.split('@')
     img_name = [dir_name[0] + x for x in img_name]
@@ -65,8 +65,10 @@ def get_input_data(args, pad_size):
                 
                 print(f"mask shape: {model_mask[i].shape}")
                 assert model_input[i].shape == model_mask[i].shape
-    return model_input, model_mask, model_label
-
+    if args.valid_mask is not None:
+      return model_input, model_mask, model_label
+    else:
+      return model_input, None, model_label
 
 def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
     """Prepare dataloader for training and inference.
@@ -78,7 +80,7 @@ def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
 
     # 1. load data
     if preload_data[0] is None: # load from command line args
-        model_input, model_mask, model_label = get_input_data(args, pad_size)
+        model_input, model_mask, model_label = get_input_data(args, pad_size, mode)
     else:
         model_input, model_mask, model_label = preload_data
 
@@ -122,7 +124,7 @@ def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
                                   sample_label_size=sample_input_size, augmentor=augmentor, mode = 'train')
         if args.task == 22: # mitochondira segmentation with skeleton transform
             dataset = MitoSkeletonDataset(volume=model_input, label=model_label, sample_input_size=sample_input_size,
-                                  sample_label_size=sample_input_size, augmentor=augmentor, valid_mask=model_mask, mode='train')
+                                  sample_label_size=sample_input_size, augmentor=augmentor, valid_mask=None, mode='train')
             img_loader =  torch.utils.data.DataLoader(
                   dataset, batch_size=args.batch_size, shuffle=SHUFFLE, collate_fn = collate_fn_skel,
                   num_workers=args.num_cpu, pin_memory=True)

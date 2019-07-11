@@ -143,8 +143,11 @@ class MitoSkeletonDataset(BaseDataset):
             for i in range(len(self.label)):
                 self.label[i] = (self.label[i] != 0).astype(np.float32)
         
-        self.valid_mask = np.float32(valid_mask)
-
+        if valid_mask is not None:
+            self.valid_mask = np.float32(valid_mask)
+        else:
+            self.valid_mask = valid_mask
+            
     def __getitem__(self, index):
         vol_size = self.sample_input_size
 
@@ -209,6 +212,8 @@ class MitoSkeletonDataset(BaseDataset):
             # Rebalancing
             temp = out_label.clone()
             weight_factor, weight = rebalance_binary_class(temp)
+            # out_valid = torch.from_numpy(out_valid.copy()).unsqueeze(0)
+            # return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton, out_valid
             return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton
 
         else:
