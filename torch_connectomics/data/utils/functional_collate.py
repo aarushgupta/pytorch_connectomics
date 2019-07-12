@@ -49,10 +49,11 @@ def collate_fn_skel(batch):
     :param batch:
     :return:
     """
-    try:
-        pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton, out_valid = zip(*batch)
-    except:
-        pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton = zip(*batch)
+    temp = zip(*batch)
+    if len(temp) == 8:
+        pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton, out_valid = temp
+    else:
+        pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton = temp
     
     out_input = torch.stack(out_input, 0)
     out_label = torch.stack(out_label, 0)
@@ -61,7 +62,7 @@ def collate_fn_skel(batch):
     out_distance = torch.stack(out_distance, 0)
     out_skeleton = np.stack(out_skeleton, 0)
     
-    if out_valid in locals():
+    if len(temp) == 8:
         out_valid = torch.stack(out_valid, 0)
         return pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton, out_valid
     else:
