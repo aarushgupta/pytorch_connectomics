@@ -36,10 +36,17 @@ class Rotate(DataAugment):
         if random_state is None:
             random_state = np.random.RandomState(1234)
 
+        image = data['image']
+
         if 'label' in data and data['label'] is not None:
-            image, label = data['image'], data['label']
+            label = data['label']
         else:
-            image, label = data['image'], None
+            label = None
+
+        if 'mask' in data and data['mask'] is not None:
+            mask = data['mask']
+        else:
+            mask = None
 
         height, width = image.shape[-2:]
         M = cv2.getRotationMatrix2D((height/2, width/2), random_state.rand()*360.0, 1)
@@ -48,5 +55,6 @@ class Rotate(DataAugment):
         output['image'] = self.rotate(image, M, self.image_interpolation)
         if label is not None:
             output['label'] = self.rotate(label, M, self.label_interpolation)
-
+        if mask is not None:
+            output['mask'] = self.rotate(mask, M, self.label_interpolation)
         return output

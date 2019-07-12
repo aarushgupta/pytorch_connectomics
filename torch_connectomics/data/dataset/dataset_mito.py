@@ -182,8 +182,17 @@ class MitoSkeletonDataset(BaseDataset):
             # 3. augmentation
             if self.augmentor is not None:  # augmentation
                 data = {'image':out_input, 'label':out_label}
+
+                if self.valid_mask is not None:
+                    data['mask'] = out_valid
+
                 augmented = self.augmentor(data, random_state=seed)
                 out_input, out_label = augmented['image'], augmented['label']
+
+                if self.valid_mask is not None:
+                    out_valid = augmented['mask']
+                    out_valid = out_valid.astype(np.float32)
+
                 out_input = out_input.astype(np.float32)
                 out_label = out_label.astype(np.float32)
 
@@ -212,9 +221,11 @@ class MitoSkeletonDataset(BaseDataset):
             # Rebalancing
             temp = out_label.clone()
             weight_factor, weight = rebalance_binary_class(temp)
-            # out_valid = torch.from_numpy(out_valid.copy()).unsqueeze(0)
-            # return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton, out_valid
-            return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton
+            if self.valid_mask is not None:
+                out_valid = torch.from_numpy(out_valid.copy()).unsqueeze(0)
+                return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton, out_valid
+            else:
+                return pos, out_input, out_label, weight, weight_factor, out_distance, out_skeleton
 
         else:
             return pos, out_input

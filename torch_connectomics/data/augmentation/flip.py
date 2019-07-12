@@ -53,6 +53,9 @@ class Flip(DataAugment):
         rule = random_state.randint(2, size=4)
         augmented_image = self.flip_and_swap(data['image'], rule)
         augmented_label = self.flip_and_swap(data['label'], rule)
+        if 'label' in data and data['label'] is not None:
+            augmented_mask = self.flip_and_swap(data['mask'], rule)
+            output['mask'] = augmented_mask
         output['image'] = augmented_image
         output['label'] = augmented_label
 
