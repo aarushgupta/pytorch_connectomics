@@ -23,11 +23,12 @@ def test(args, test_loader, model, device, model_io_size, pad_size, do_eval=True
 
             # for gpu computing
             volume = volume.to(device)
+            # print(f"Volume shape: {volume.shape}")
             if do_3d:
                 output = model(volume)
             else:
                 output = model(volume.squeeze(1))
-
+            # print(f"Output shape: {output.shape}")
             if model_output_id is not None:
                 output = output[model_output_id]
 
@@ -44,8 +45,12 @@ def test(args, test_loader, model, device, model_io_size, pad_size, do_eval=True
 
     for vol_id in range(len(result)):
         result[vol_id] = result[vol_id] / weight[vol_id]
-        data = (result[vol_id]*255).astype(np.uint8)
+        dummy_data = result[vol_id]
+        indices_neg = dummy_data < 0
+        dummy_data[indices_neg] = 0
+        data = (dummy_data*255).astype(np.uint8)
         sz = data.shape
+        # print(data.shape)
         data = data[:,
                     pad_size[0]:sz[1]-pad_size[0],
                     pad_size[1]:sz[2]-pad_size[1],

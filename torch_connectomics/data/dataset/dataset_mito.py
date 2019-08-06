@@ -182,7 +182,7 @@ class MitoSkeletonDataset(BaseDataset):
             # 3. augmentation
             if self.augmentor is not None:  # augmentation
                 data = {'image':out_input, 'label':out_label}
-
+                # import pdb; pdb.set_trace()
                 if self.valid_mask is not None:
                     data['mask'] = out_valid
 

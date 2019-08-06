@@ -120,5 +120,5 @@ class Rescale(DataAugment):
             output['image'], output['label'], output['mask'] = self.apply_rescale(image, label, mask, sf_x, sf_y, random_state)
         else:
             output['image'], output['label'], _ = self.apply_rescale(image, label, None, sf_x, sf_y, random_state)
-
+        # print(f'Rescale Keys: {output.keys()}')
         return output

@@ -49,12 +49,14 @@ def collate_fn_skel(batch):
     :param batch:
     :return:
     """
-    temp = zip(*batch)
+
+    temp = list(zip(*batch))
     if len(temp) == 8:
         pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton, out_valid = temp
+        # print("8")
     else:
         pos, out_input, out_label, weights, weight_factor, out_distance, out_skeleton = temp
-    
+        # print("7")
     out_input = torch.stack(out_input, 0)
     out_label = torch.stack(out_label, 0)
     weights = torch.stack(weights, 0)

@@ -91,8 +91,8 @@ class Elastic(DataAugment):
         
         if mask is not None:
             transformed_mask = np.stack(transformed_mask, 0)
-
+            output['mask'] = transformed_mask
         output['image'] = transformed_image
         output['label'] = transformed_label
-
+        # print(f'Elastic Keys: {output.keys()}')
         return output

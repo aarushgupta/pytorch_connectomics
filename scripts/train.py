@@ -20,7 +20,6 @@ def main():
 
     print('2.0 setup model')
     model = setup_model(args, device)
-            
     print('2.1 setup loss function')
     if args.task == 22:
         criterion = WeightedMSE()

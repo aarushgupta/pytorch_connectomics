@@ -48,7 +48,11 @@ class MissingSection(DataAugment):
         if random_state is None:
             random_state = np.random.RandomState(1234)
 
-        return self.missing_section(data, random_state)
+        output = self.missing_section(data, random_state)
+        
+        # print(f'MissingSection Keys: {output.keys()}')
+
+        return output
 
         # if 'mask' in data and data['mask'] is not None:
         #     new_images, new_labels, new_mask = self.missing_section(data, random_state)

@@ -40,6 +40,7 @@ def get_input_data(args, pad_size, mode):
 
     for i in range(len(img_name)):
         model_input[i] = np.array(h5py.File(img_name[i], 'r')['main'])/255.0
+        # print(f"volume shape: {model_input[i].shape}")
         model_input[i] = np.pad(model_input[i], ((pad_size[0],pad_size[0]), 
                                                  (pad_size[1],pad_size[1]), 
                                                  (pad_size[2],pad_size[2])), 'reflect')
@@ -56,6 +57,7 @@ def get_input_data(args, pad_size, mode):
             
             assert model_input[i].shape == model_label[i].shape
             
+            assert args.valid_mask is not None
             if args.valid_mask is not None:
                 model_mask[i] = np.array(h5py.File(mask_locations[i], 'r')['main'])
                 model_mask[i] = model_mask[i].astype(np.float32)
@@ -65,10 +67,15 @@ def get_input_data(args, pad_size, mode):
                 
                 print(f"mask shape: {model_mask[i].shape}")
                 assert model_input[i].shape == model_mask[i].shape
-    if args.valid_mask is not None:
-      return model_input, model_mask, model_label
+    if hasattr(args, 'valid_mask'):
+      if args.valid_mask is not None:
+        return model_input, model_mask, model_label
+      else:
+        return model_input, None, model_label
     else:
-      return model_input, None, model_label
+      if mode == 'test':
+        return model_input, None, None
+
 
 def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
     """Prepare dataloader for training and inference.
@@ -88,13 +95,14 @@ def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
     if mode=='train':
         # setup augmentor
         augmentor = Compose([Rotate(p=1.0),
-                             Rescale(p=0.5),
+                             Rescale(low=0.5, high=1.5, p=0.75),
                              Flip(p=1.0),
                              Elastic(alpha=12.0, p=0.75),
                              Grayscale(p=0.75),
                              MissingParts(p=0.9),
                              MissingSection(p=0.5),
-                             MisAlignment(p=1.0, displacement=16)], 
+                             MisAlignment(p=1.0, displacement=16)
+                             ], 
                              input_size = model_io_size)
         # augmentor = None # debug
     else:
@@ -124,7 +132,7 @@ def get_input(args, model_io_size, mode='train', preload_data=[None,None,None]):
                                   sample_label_size=sample_input_size, augmentor=augmentor, mode = 'train')
         if args.task == 22: # mitochondira segmentation with skeleton transform
             dataset = MitoSkeletonDataset(volume=model_input, label=model_label, sample_input_size=sample_input_size,
-                                  sample_label_size=sample_input_size, augmentor=augmentor, valid_mask=None, mode='train')
+                                  sample_label_size=sample_input_size, augmentor=augmentor, valid_mask=model_mask, mode='train')
             img_loader =  torch.utils.data.DataLoader(
                   dataset, batch_size=args.batch_size, shuffle=SHUFFLE, collate_fn = collate_fn_skel,
                   num_workers=args.num_cpu, pin_memory=True)

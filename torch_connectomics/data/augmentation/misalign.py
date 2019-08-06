@@ -50,7 +50,7 @@ class MisAlignment(DataAugment):
             new_images[idx] = images[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
             new_labels[idx] = labels[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
 
-            if mask if not None:
+            if mask is not None:
                 new_mask = mask[:, y0:y0+out_shape[1], x0:x0+out_shape[2]]
                 new_mask[idx] = mask[idx, y1:y1+out_shape[1], x1:x1+out_shape[2]]
         else:
@@ -77,7 +77,10 @@ class MisAlignment(DataAugment):
         if random_state is None:
             random_state = np.random.RandomState(1234)
 
-        return self.misalignment(data, random_state)
+        output = self.misalignment(data, random_state)
 
+        # print(f'MissingSection Keys: {output.keys()}')
+
+        return output
         # new_images, new_labels = self.misalignment(data, random_state)
         # return {'image': new_images, 'label': new_labels}
